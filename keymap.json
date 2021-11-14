@@ -1,0 +1,15 @@
+{
+    "menu_bridge_door": 1,
+    "menu_bridge": 2,
+    "menu_bridge_status": 3,
+    "menu_nav_room_door": 4,
+    "menu_power_room_door": 5,
+    "menu_power": 6,
+    "menu_power_online": 7,
+    "show_menu_bridge_door_no_power": 101,
+    "open_menu_bridge": 400,
+    "open_bridge_door": 401,
+    "open_nav_room_door": 402,
+    "open_power_room_door": 403,
+    "enable_power": 500
+}

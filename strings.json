@@ -1,0 +1,15 @@
+[
+	"Door control panel",
+	"WARNING!",
+	"open/close door",
+	"noop",
+	"status",
+	"Power: CRITICAL\nOxygen: OFFLINE\nHull: DAMAGED\nGravity: OFFLINE\nNavigation: OFFLINE",
+	"back",
+	"Subdrive emergency:\n main drive overload\n\nPower failure\nAux power grid:\n damaged",
+	"ERROR: low power",
+	"Use crowbar",
+	"Power grid: OFFLINE",
+	"Restart",
+	"Power grid: ONLINE"
+]

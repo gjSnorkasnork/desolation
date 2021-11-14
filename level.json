@@ -1,0 +1,368 @@
+{
+	"level_length" : 16,
+	"ship" : [
+		9,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	3,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	9,	1,	1,	1,	1,	1,	1,	3,	0,	0,	0,	0,	2,
+		8,	0,	0,	8,	0,	0,	0,	0,	0,	0,	2,	0,	0,	0,	0,	2,
+		8,	0,	0,	8,	0,	32,	16,	0,	0,	0,	2,	0,	0,	0,	0,	2,
+		8,	0,	0,	8,	0,	16,	32,	0,	0,	0,	2,	0,	0,	0,	0,	2,
+		8,	0,	0,	8,	0,	0,	0,	0,	0,	0,	2,	0,	0,	0,	0,	2,
+		8,	0,	0,	8,	0,	0,	0,	0,	0,	0,	2,	0,	0,	0,	0,	2,
+		8,	0,	0,	16,	4,	4,	4,	0,	0,	4,	32,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	9,	1,	1,	1,	1,	1,	1,	1,	1,	3,
+		8,	0,	0,	0,	0,	0,	8,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+
+		8,	0,	0,	0,	0,	0,	8,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	8,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	8,	0,	0,	0,	0,	0,	0,	0,	0,	2,
+		8,	0,	0,	0,	0,	0,	9,	1,	1,	1,	1,	1,	1,	1,	1,	3,
+
+		16,	0,	0,	0,	0,	0,	8,	0,	0,	0,	0,	0,	0,	0,	0,	32,
+		0,	16,	4,	4,	4,	4,	8,	0,	0,	0,	0,	0,	0,	0,	32,	0,
+		0,	0,	0,	0,	0,	0,	16,	0,	0,	0,	0,	0,	0,	32,	0,	0,
+		0,	0,	0,	0,	0,	0,	0,	16,	4,	4,	4,	4,	32,	0,	0,	0
+	],
+	"entities" : [
+		{
+			"pos:p2" : [9.5,45.5],
+			"inputDir:p2" : [0.0, 0.0],
+			"moveSpeed:p2" : [0.0, 0.0],
+			"wishPos:p2" : [0.0,0.0],
+			"canWalk:b" : true,
+			"avatar:b" : true,
+			"input:b" : true,
+			"radius:r" : 10.0,
+			"curWalkSpeed:p2" : [0.0,0.0],
+			"dir:p2" : [0.0,0.0],
+			"walkSpeed:r" : 3.0,
+			"maxUseDist:r" : 2.0,
+			"oxygenLevel:r" : 1.0,
+			"oxygenDepletionSpeed:r" : 0.01,
+			"oxygenDepletionSpeedMin:r" : -0.01,
+			"oxygenDepletionSpeedMax:r" : 0.01
+		},
+		{
+			"gravitation:b" : true,
+			"actionId:k" : "enable_power",
+			"state:b" : false
+		},
+		{
+			"oxygenGeneration:b" : true,
+			"actionId:k" : "enable_power",
+			"state:b" : false
+		},
+		{
+			"wallPos:i2": [7,10],
+			"wallType:i": 1,
+			"actionId:k": "open_power_room_door",
+			"state:b": true
+		},
+		{
+			"wallPos:i2": [8,10],
+			"wallType:i": 1,
+			"actionId:k": "open_power_room_door",
+			"state:b": true
+		},
+		{
+			"wallPos:i2": [9,43],
+			"wallType:i": 1,
+			"actionId:k": "open_bridge_door",
+			"state:b": true
+		},
+		{
+			"wallPos:i2": [6,40],
+			"wallType:i": 8,
+			"actionId:k": "open_nav_room_door",
+			"state:b": true
+		},
+		{
+			"interactable:b" : true,
+			"trigger:i" : 0,
+			"triggered:b" : false,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [-22.0,-64.0],
+			"buttonRectMax:p2" : [22.0,0.0],
+			"text:i" : 0,
+			"active:b" : true,
+			"menuSelected:b": false,
+			"id:k" : "menu_bridge_door",
+			"pos:p2" : [10.0,43.0]
+		},
+		{
+			"interactable:b" : true,
+			"trigger:k" : "show_menu_bridge_door_no_power",
+			"triggered:b" : false,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [-22.0,-64.0],
+			"buttonRectMax:p2" : [22.0,0.0],
+			"text:i" : 8,
+			"active:b" : true,
+			"menuSelected:b": false,
+			"id:k" : "menu_bridge_door_unpowered",
+			"pos:p2" : [10.0,43.0]
+		},
+		{
+			"text:i" : 0,
+			"active:b" : false,
+			"state:b" : true,
+			"parent:k" : "menu_bridge_door",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"text:i" : 8,
+			"active:b" : true,
+			"state:b" : true,
+			"parent:k" : "menu_bridge_door_unpowered",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"button:b" : true,
+			"active:b" : false,
+			"state:b" : true,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [0.0,0.0],
+			"buttonRectMax:p2" : [160.0,64.0],
+			"triggerAction:k" : "show_menu_bridge_door_no_power",
+			"parent:k" : "menu_bridge_door",
+			"menu:eid" : 0,
+			"text:i" : 2
+		},
+		{
+			"button:b" : true,
+			"active:b" : false,
+			"state:b" : true,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [0.0,0.0],
+			"buttonRectMax:p2" : [160.0,64.0],
+			"triggerAction:k" : "open_bridge_door",
+			"parent:k" : "menu_bridge_door",
+			"menu:eid" : 0,
+			"text:i" : 9
+		},
+		{
+			"interactable:b" : true,
+			"trigger:k" : "open_menu_bridge",
+			"triggered:b" : false,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [-22.0,-64.0],
+			"buttonRectMax:p2" : [22.0,0.0],
+			"text:i" : 0,
+			"active:b" : true,
+			"menuSelected:b": false,
+			"id:k" : "menu_bridge",
+			"pos:p2" : [10.0,47.0]
+		},
+		{
+			"button:b" : true,
+			"active:b" : false,
+			"state:b" : true,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [0.0,0.0],
+			"buttonRectMax:p2" : [160.0,64.0],
+			"triggerAction:i" : 102,
+			"parent:k" : "menu_bridge",
+			"menu:eid" : 0,
+			"text:i" : 4
+		},
+		{
+			"text:i" : 1,
+			"active:b" : false,
+			"state:b" : true,
+			"parent:k" : "menu_bridge",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"interactable:b" : true,
+			"trigger:i" : 102,
+			"triggered:b" : false,
+			"text:i" : 5,
+			"active:b" : true,
+			"menuSelected:b": false,
+			"id:k" : "menu_bridge_status"
+		},
+		{
+			"text:i" : 5,
+			"active:b" : false,
+			"state:b" : true,
+			"parent:k" : "menu_bridge_status",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"button:b" : true,
+			"active:b" : false,
+			"state:b" : true,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [0.0,0.0],
+			"buttonRectMax:p2" : [160.0,64.0],
+			"triggerAction:k" : "open_menu_bridge",
+			"parent:k" : "menu_bridge_status",
+			"menu:eid" : 0,
+			"text:i" : 6
+		},
+		{
+			"interactable:b" : true,
+			"trigger:i" : 0,
+			"triggered:b" : false,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [-22.0,-64.0],
+			"buttonRectMax:p2" : [22.0,0.0],
+			"text:i" : 1,
+			"active:b" : true,
+			"menuSelected:b": false,
+			"id:k" : "menu_nav_room_door",
+			"pos:p2" : [6.0,40.0]
+		},
+		{
+			"text:i" : 0,
+			"active:b" : false,
+			"state:b" : true,
+			"parent:k" : "menu_nav_room_door",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"button:b" : true,
+			"active:b" : false,
+			"state:b" : true,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [0.0,0.0],
+			"buttonRectMax:p2" : [160.0,64.0],
+			"triggerAction:k" : "open_nav_room_door",
+			"parent:k" : "menu_nav_room_door",
+			"menu:eid" : 0,
+			"text:i" : 2
+		},
+		{
+			"interactable:b" : true,
+			"trigger:i" : 0,
+			"triggered:b" : false,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [-22.0,-64.0],
+			"buttonRectMax:p2" : [22.0,0.0],
+			"text:i" : 0,
+			"active:b" : true,
+			"menuSelected:b": false,
+			"id:k" : "menu_power_room_door",
+			"pos:p2" : [9.0,10.0]
+		},
+		{
+			"button:b" : true,
+			"active:b" : false,
+			"state:b" : true,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [0.0,0.0],
+			"buttonRectMax:p2" : [160.0,64.0],
+			"triggerAction:k" : "open_power_room_door",
+			"parent:k" : "menu_power_room_door",
+			"menu:eid" : 0,
+			"text:i" : 2
+		},
+		{
+			"text:i" : 0,
+			"active:b" : false,
+			"state:b" : true,
+			"parent:k" : "menu_power_room_door",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"interactable:b" : true,
+			"trigger:i" : 0,
+			"triggered:b" : false,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [-22.0,-64.0],
+			"buttonRectMax:p2" : [22.0,0.0],
+			"text:i" : 0,
+			"active:b" : true,
+			"menuSelected:b": false,
+			"id:k" : "menu_power",
+			"pos:p2" : [6.0,6.0]
+		},
+		{
+			"text:i" : 10,
+			"color:c" : [1.0, 0.0, 0.0],
+			"actionId:k" : "enable_power",
+			"active:b" : false,
+			"state:b" : true,
+			"parent:k" : "menu_power",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"text:i" : 12,
+			"color:c" : [0.0, 1.0, 0.0],
+			"actionId:k" : "enable_power",
+			"active:b" : false,
+			"state:b" : false,
+			"parent:k" : "menu_power",
+			"textPos:p2" : [0.0,0.0],
+			"menu:eid" : 0
+		},
+		{
+			"button:b" : true,
+			"active:b" : false,
+			"state:b" : true,
+			"isUnderMouse:b" : false,
+			"buttonPos:p2" : [0.0,0.0],
+			"buttonRectMin:p2" : [0.0,0.0],
+			"buttonRectMax:p2" : [160.0,64.0],
+			"triggerAction:k" : "enable_power",
+			"parent:k" : "menu_power",
+			"actionId:k" : "enable_power",
+			"menu:eid" : 0,
+			"text:i" : 11
+		}
+	]
+}
