@@ -23,9 +23,11 @@ let
     MENU_WIDTH = 200
     MENU_PADDING = 10
     MENU_BUTTON_HEIGHT = 64
-    MENU_TEXT_SECTION_HEIGHT = 150
+    MENU_TEXT_SECTION_HEIGHT = 160
     MENU_BUTTON_TEXT_PADING = 20.0
     MENU_BUTTON_SECTION_OFFSET_Y = MENU_TEXT_SECTION_HEIGHT + 2*MENU_PADDING
+    MENU_INVENTORY_SECTION_TITLE_OFFSET_Y = MENU_TEXT_SECTION_HEIGHT + 2*MENU_PADDING
+    MENU_INVENTORY_SECTION_OFFSET_Y = MENU_INVENTORY_SECTION_TITLE_OFFSET_Y + 2*MENU_PADDING
 
 var hero_img : ImageHandle
 var interact_img : ImageHandle
@@ -40,6 +42,7 @@ let
     WALL_L = 8
     WALL_S = 16
     WALL_Z = 32
+    CELL_SPACE = 64
     WALL_ANY = WALL_U | WALL_R | WALL_D | WALL_L | WALL_S | WALL_Z
 
 def make_iso_tm()
@@ -131,14 +134,32 @@ def read_walls(var obj)
     if levelLength <= 0
         return
     var arr & = obj["ship"].value as _array
+    var cells : array<EntityId>
     for index, elem in range(0, length(arr)), arr
         let walls = int(elem as _number)
         let y = index / levelLength
         let x = index % levelLength
-        create_entity <| @ ( eid, cmp )
+        let leftCell = x > 0 ? cells[index-1] : INVALID_ENTITY_ID
+        let upCell = y > 0 ? cells[index-levelLength] : INVALID_ENTITY_ID
+        let pressurized = (walls & CELL_SPACE) == 0
+        let pressure = pressurized ? 0.101 : 0.0
+        let cell = create_entity <| @ ( eid, cmp )
             cmp |> set("eid", eid)
             cmp |> set("walls", walls)
             cmp |> set("cell", int2(x,y))
+            cmp |> set("leftCell", leftCell)
+            cmp |> set("upCell", upCell)
+            cmp |> set("pressureUp", pressure)
+            cmp |> set("pressureRight", pressure)
+            cmp |> set("pressureDown", pressure)
+            cmp |> set("pressureLeft", pressure)
+            cmp |> set("pressurizedUp", pressurized)
+            cmp |> set("pressurizedRight", pressurized)
+            cmp |> set("pressurizedLeft", pressurized)
+            cmp |> set("pressurizedDown", pressurized)
+            if !pressurized
+                cmp |> set("constantPressure", 0.0)
+        cells |> push(cell)
 
 def load_key_mapping()
     var mapping : table<string;int>
@@ -167,7 +188,6 @@ def load_level()
                 return
             read_walls(obj)
             read_entities(obj, mapping)
-            // read_interactable(obj)
 
 def load_text_buffer()
     fopen("./strings.json", "rb") <| $(file : FILE const? const)
@@ -223,13 +243,18 @@ def gravity_set_can_walk(pos : float2; moveSpeed : float2; var canWalk : bool)
     canWalk = true
     if length_sq(moveSpeed) <= 0.0
         return
-    query() <| $ [REQUIRE(gravitation)](state : bool)
-        if !state
+    let posCell = int2(pos)
+    query() <| $ [REQUIRE(gravitation)](active : bool)
+        if !active
             let hasContactWithWalls = (((cellWalls & WALL_ANY) != 0) ||
-                ((get_walls(int2(pos)+int2(1,0)) & (WALL_L|WALL_U|WALL_D|WALL_S|WALL_Z)) != 0) ||
-                ((get_walls(int2(pos)+int2(-1,0)) & (WALL_R|WALL_U|WALL_D|WALL_S|WALL_Z)) != 0) ||
-                ((get_walls(int2(pos)+int2(0,1)) & (WALL_U|WALL_L|WALL_R|WALL_S|WALL_Z)) != 0) ||
-                ((get_walls(int2(pos)+int2(0,-1)) & (WALL_D|WALL_L|WALL_R|WALL_S|WALL_Z)) != 0))
+                ((get_walls(posCell+int2(1,0)) & (WALL_L|WALL_U|WALL_D|WALL_S|WALL_Z)) != 0) ||
+                ((get_walls(posCell+int2(-1,0)) & (WALL_R|WALL_U|WALL_D|WALL_S|WALL_Z)) != 0) ||
+                ((get_walls(posCell+int2(0,1)) & (WALL_U|WALL_L|WALL_R|WALL_S|WALL_Z)) != 0) ||
+                ((get_walls(posCell+int2(0,-1)) & (WALL_D|WALL_L|WALL_R|WALL_S|WALL_Z)) != 0) ||
+                ((get_walls(posCell+int2(-1,-1)) & (WALL_D|WALL_R|WALL_S)) != 0) ||
+                ((get_walls(posCell+int2(-1,1)) & (WALL_U|WALL_R|WALL_Z)) != 0) ||
+                ((get_walls(posCell+int2(1,1)) & (WALL_U|WALL_L|WALL_S)) != 0) ||
+                ((get_walls(posCell+int2(1,-1)) & (WALL_D|WALL_L|WALL_Z)) != 0))
             canWalk = hasContactWithWalls
 
 [decs(stage=update, REQUIRE=input)]
@@ -240,7 +265,7 @@ def move_set_speed(inputDir : float2; walkSpeed : float; canWalk: bool; var move
 [decs(stage=update, before=update_move)]
 def set_wish_pos(moveSpeed : float2; inputDir : float2; var wishPos : float2&; pos : float2)
     wishPos = pos + moveSpeed
-    let wishCell = float2(int(wishPos.x), int(wishPos.y))
+    let wishCell = float2(floor(wishPos.x), floor(wishPos.y))
     wishPos = clamp(wishPos, wishCell + float2(0.01, 0.01), wishCell + float2(0.99, 0.99))
 
 def line_line_intersect(p1, p2, p3, p4 : float2; var mua : float&; var mub : float&)
@@ -292,7 +317,7 @@ def get_cell_index(cell : int2; level_length : int)
     return cell.y * level_length + cell.x
 
 def get_walls(to_cell : int2)
-    var res = -1
+    var res = CELL_SPACE
     find_query() <| $(cell : int2; walls : int)
         if cell == to_cell
             res = walls
@@ -353,8 +378,9 @@ def move_check_collision(pos : float2; var wishPos : float2&)
     let cells <- collect_cells(pos, wishPos + dirNorm * 0.5)
     for cell in cells
         let cellWalls = get_walls(cell)
-        if cellWalls < 0 || !check_collision(pos, wishPos, cell, cellWalls)
+        if !check_collision(pos, wishPos, cell, cellWalls)
             wishPos = pos
+            return
 
 
 [decs(stage=update)]
@@ -365,14 +391,67 @@ def update_move(wishPos : float2; var pos : float2&; var curWalkSpeed : float2&)
     pos.y = clamp(pos.y, floor(pos.y)+0.01, ceil(pos.y)-0.01)
 
 [decs(stage=update)]
-def update_oxygen_depletion(oxygenDepletionSpeedMin, oxygenDepletionSpeedMax : float; var oxygenDepletionSpeed : float&)
-    query() <| $[REQUIRE(oxygenGeneration)] (state : bool)
-        oxygenDepletionSpeed = state ? oxygenDepletionSpeedMin : oxygenDepletionSpeedMax
+def oxygen_reset(var hasOxygen : bool&; var hasOxygenTank : bool&)
+    hasOxygen = false
+    hasOxygenTank = false
 
 [decs(stage=update)]
-def update_oxygen(oxygenDepletionSpeed : float; var oxygenLevel : float&)
+def oxygen_room_pressurized(isRoomPressurised : bool; var hasOxygen : bool&)
+    if isRoomPressurised
+        hasOxygen = true
+
+[decs(stage=update)]
+def update_oxygen_tank(oxygenDepletionSpeed : float; oxygenRefillSpeed : float; suitOxygenMax : float; var hasOxygen : bool&; var suitOxygenLevel : float&; var hasOxygenTank : bool&)
     let dt = get_delta_time()
-    oxygenLevel = clamp(oxygenLevel - oxygenDepletionSpeed * dt, 0.,1.)
+    if hasOxygen
+        return
+    find_query() <| $ (active : bool; var oxygenTank : float&)
+        if active && oxygenTank > 0.0
+            hasOxygen = true
+            hasOxygenTank = true
+            oxygenTank = max(oxygenTank - oxygenDepletionSpeed * dt, 0.0)
+            if suitOxygenLevel < suitOxygenMax && oxygenTank > 0.0
+                var transferAmount = min(oxygenTank, suitOxygenMax - suitOxygenLevel)
+                transferAmount = min(oxygenRefillSpeed * dt, transferAmount)
+                oxygenTank = max(oxygenTank - transferAmount, 0.0)
+                suitOxygenLevel = min(suitOxygenLevel + transferAmount, suitOxygenMax)
+            return true
+        return false
+
+[decs(stage=update)]
+def refill_oxygen_suit_from_room(oxygenRefillSpeed : float; suitOxygenMax : float; isRoomPressurised : bool; var suitOxygenLevel : float&)
+    if isRoomPressurised
+        let dt = get_delta_time()
+        suitOxygenLevel = min(suitOxygenLevel + oxygenRefillSpeed * dt, suitOxygenMax)
+
+[decs(stage=update)]
+def update_oxygen_suit(oxygenDepletionSpeed : float; suitOxygenMax : float; var suitOxygenLevel : float&; var hasOxygen : bool&)
+    if hasOxygen
+        return
+    if suitOxygenLevel > 0.0
+        hasOxygen = true
+        let dt = get_delta_time()
+        suitOxygenLevel = max(suitOxygenLevel - oxygenDepletionSpeed * dt, 0.0)
+
+[decs(stage=update)]
+def update_hero_room_pressurized(pos : float2; var isRoomPressurised : bool&)
+    let posCell = int2(floor(pos))
+    let localX = pos.x - float(posCell.x)
+    let localY = pos.y - float(posCell.y)
+    let localYInv = 1.0 - localY
+
+    let dl = localY > localX
+    let ul = localYInv > localX
+
+    find_query() <| $ (cell : int2; pressurizedUp, pressurizedDown, pressurizedLeft, pressurizedRight : bool)
+        if cell == posCell
+            isRoomPressurised = (pressurizedUp && (!dl && ul) ||
+                                 pressurizedDown && (dl && !ul) ||
+                                 pressurizedLeft && (dl && ul) ||
+                                 pressurizedRight && (!dl && !ul))
+            return true
+        return false
+
 
 [decs(stage=update)]
 def check_doors(state : bool; wallPos : int2; wallType : int)
@@ -384,13 +463,6 @@ def check_doors(state : bool; wallPos : int2; wallType : int)
 [decs(stage=update, REQUIRE=interactable)]
 def update_interactable_button_pos(pos : float2; var buttonPos : float2&)
     buttonPos = camera(pos + float2(1,1))
-
-[decs(stage=update, REQUIRE=input)]
-def check_interact_dist(pos : float2; maxUseDist : float)
-    let maxUseDistSq = maxUseDist * maxUseDist
-    let heroPos = pos
-    query() <| $[REQUIRE(interactable)] (pos : float2; var active : bool&)
-        active = length_sq(pos - heroPos) < maxUseDistSq
 
 [decs(stage=update)]
 def check_menu_disabled(active : bool; var menuSelected : bool&)
@@ -439,23 +511,61 @@ def shake_camera_effect()
 [decs(stage=update)]
 def bind_to_parent(parent : int; var menu : EntityId&)
     if menu == INVALID_ENTITY_ID
-        query() <| $(eid : EntityId; id : int)
+        find_query() <| $(eid : EntityId; id : int)
             if id == parent
                 menu := eid
-                // return true
-            // return false
+                return true
+            return false
     if menu == INVALID_ENTITY_ID
         debug_print("menu not found {parent}")
 
 [decs(stage=update)]
+def reset_active(var active : bool&)
+    active = true
+
+[decs(stage=update)]
 def check_menu_element_status(menu : EntityId; state : bool = true; var active : bool&)
-    var elementActive& = active
-    elementActive = false
-    if !state
-        active = false
-        return
     query(menu) <| $(menuSelected : bool)
-        elementActive = menuSelected
+        active &&= menuSelected
+
+[decs(stage=update)]
+def check_state(state : bool; var active : bool&)
+    active &&= state
+
+[decs(stage=update)]
+def check_conditions(requiredCondition : int; var active : bool&)
+    var outActive& = active
+    query() <| $ (conditionId : int; active : bool)
+        if conditionId == requiredCondition
+            outActive &&= active
+
+[decs(stage=update)]
+def check_conditions_not(requiredConditionNot : int; var active : bool&)
+    var outActive& = active
+    query() <| $ (conditionId : int; active: bool)
+        if conditionId == requiredConditionNot
+            outActive &&= !active
+
+[decs(stage=update, REQUIRE=input)]
+def check_interact_dist(pos : float2; maxUseDist : float)
+    let maxUseDistSq = maxUseDist * maxUseDist
+    let heroPos = pos
+    query() <| $[REQUIRE(interactable)] (pos : float2; var active : bool&)
+        active &&= length_sq(pos - heroPos) < maxUseDistSq
+
+[decs(stage=update, REQUIRE=(interactable,checkCollision))]
+def check_interact_can_touch(pos : float2; var active : bool&)
+    if !active
+        return
+    let interactablePos = pos
+    query() <| $[REQUIRE(input)] (pos : float2)
+        let dirNorm = normalize(interactablePos-pos)
+        let cells <- collect_cells(pos, interactablePos + dirNorm * 0.5)
+        for cell in cells
+            let cellWalls = get_walls(cell)
+            if !check_collision(pos, interactablePos, cell, cellWalls)
+                active = false
+                return
 
 [decs(stage=update)]
 def menu_arrange_text(eid : EntityId; menuSelected : bool)
@@ -465,8 +575,18 @@ def menu_arrange_text(eid : EntityId; menuSelected : bool)
     let textMenuY = MENU_PADDING * 2
     let lineOffset = MENU_PADDING + get_current_font_size()
     var textIndex = 0
-    query() <| $ (menu : EntityId; state : bool; var textPos : float2&)
-        if eid == menu && state
+    query() <| $ (menu : EntityId; active : bool; var textPos : float2&)
+        if eid == menu && active
+            textPos = float2(textMenuX, textMenuY + lineOffset * textIndex++)
+
+[decs(stage=update, REQUIRE=input)]
+def inventory_arrange_text(eid : EntityId)
+    let textMenuX = MENU_PADDING * 2
+    let textMenuY = MENU_INVENTORY_SECTION_OFFSET_Y
+    let lineOffset = MENU_PADDING + get_current_font_size()
+    var textIndex = 0
+    query() <| $[REQUIRE(inventory)] (active : bool; var textPos : float2&)
+        if active
             textPos = float2(textMenuX, textMenuY + lineOffset * textIndex++)
 
 [decs(stage=update)]
@@ -477,8 +597,8 @@ def menu_arrange_buttons(eid : EntityId; menuSelected : bool)
     let buttonMenuY = MENU_BUTTON_SECTION_OFFSET_Y
     let buttonOffset = MENU_BUTTON_HEIGHT + MENU_PADDING
     var buttonIndex = 0
-    query() <| $ (menu : EntityId; state : bool; var buttonPos : float2&)
-        if eid == menu && state
+    query() <| $ (menu : EntityId; active : bool; var buttonPos : float2&)
+        if eid == menu && active
             buttonPos = float2(buttonMenuX, buttonMenuY + buttonOffset * buttonIndex++)
 
 def enable_menu(selected_menu : EntityId)
@@ -517,6 +637,75 @@ def mouse_interract()
             if isUnderMouse && active
                 do_action(triggerAction)
 
+[decs(stage=update)]
+def init_vent(pressurizeCell : int2; var pressurizeCellEid : EntityId&)
+    if pressurizeCellEid == INVALID_ENTITY_ID
+        find_query() <| $(eid : EntityId; cell : int2)
+            if cell == pressurizeCell
+                pressurizeCellEid := eid
+
+[decs(stage=update)]
+def update_vent(pressurizeCellEid : EntityId; active : bool; constantPressure : float)
+    if active
+        query(pressurizeCellEid) <| $(var pressureUp : float&)
+            pressureUp = constantPressure
+
+
+[decs(stage=update)]
+def cell_pressure_constant(constantPressure : float; var pressureUp : float&)
+    pressureUp = constantPressure
+
+[decs(stage=update)]
+def room_inter_pressure_status(walls : int;
+                               pressureUp, pressureRight, pressureLeft, pressureDown : float;
+                               var pressurizedUp : bool&;
+                               var pressurizedDown : bool&;
+                               var pressurizedLeft : bool&;
+                               var pressurizedRight : bool&)
+    pressurizedUp = pressureUp > 0.1
+    pressurizedDown = pressureDown > 0.1
+    pressurizedLeft = pressureLeft > 0.1
+    pressurizedRight = pressureRight > 0.1
+
+[decs(stage=update)]
+def room_inter_pressure(walls : int;
+                        var pressureUp : float&;
+                        var pressureRight : float&;
+                        var pressureLeft : float&;
+                        var pressureDown : float&)
+    if (walls & WALL_Z) == 0
+        let pressureUR = (pressureUp + pressureRight) * 0.5
+        pressureUp = pressureUR
+        pressureRight = pressureUR
+        let pressureDL = (pressureDown + pressureLeft) * 0.5
+        pressureDown = pressureDL
+        pressureLeft = pressureDL
+    if (walls & WALL_S) == 0
+        let pressureUL = (pressureUp + pressureLeft) * 0.5
+        pressureUp = pressureUL
+        pressureLeft = pressureUL
+        let pressureDR = (pressureDown + pressureRight) * 0.5
+        pressureDown = pressureDR
+        pressureRight = pressureDR
+
+[decs(stage=update)]
+def room_pressure(walls : int;
+                  leftCell, upCell : EntityId;
+                  var pressureUp : float&; var pressureLeft : float&)
+
+    if (walls & WALL_L) == 0
+        query(leftCell) <| $(walls : int; var pressureRight : float&)
+            if (walls & WALL_R) == 0
+                let pressure = (pressureLeft + pressureRight) * 0.5
+                pressureLeft = pressure
+                pressureRight = pressure
+    if (walls & WALL_U) == 0
+        query(upCell) <| $(walls : int; var pressureDown : float&)
+            if (walls & WALL_D) == 0
+                let pressure = (pressureDown + pressureUp) * 0.5
+                pressureUp = pressure
+                pressureDown = pressure
+
 [export]
 def act(dt: float)
     if get_key(VK_ESCAPE)
@@ -535,7 +724,7 @@ def iso_line(x1, y1, x2, y2 : auto; color : uint)
     let p2 = camera(float2(x2, y2))
     line(p1.x, p1.y, p2.x, p2.y, color)
 
-def draw_floor(xi, yi)
+def draw_floor(xi, yi : int; color : uint = 0x33333333)
     let x = xi
     let y = yi
     var posIso = camera((float2(xi+1, yi+1)))
@@ -544,10 +733,10 @@ def draw_floor(xi, yi)
     posIso.y = floor(posIso.y)
 
 
-    iso_line(x, y, x, y+1, 0x33333333)
-    iso_line(x+1, y, x+1, y+1, 0x33333333)
-    iso_line(x, y, x+1, y, 0x33333333)
-    iso_line(x, y+1, x+1, y+1, 0x33333333)
+    iso_line(x, y, x, y+1, color)
+    iso_line(x+1, y, x+1, y+1, color)
+    iso_line(x, y, x+1, y, color)
+    iso_line(x, y+1, x+1, y+1, color)
 
 def draw_wall(xi, yi, wall : int; hero_pos : float2; is_background : bool = true)
     let x = xi * CELL_SIZE
@@ -599,8 +788,12 @@ def draw_wall(xi, yi, wall : int; hero_pos : float2; is_background : bool = true
 [decs(stage=draw, before=draw_avatar)]
 def draw_level_background(cell : int2; walls : int)
     var heroPos : float2
-    query() <| $ [REQUIRE(input)](pos : float2)
+    var visibilityRadiusSq = 10000.0
+    query() <| $ [REQUIRE(input)](pos : float2; visibilityRadius : float = 100.0)
         heroPos = pos
+        visibilityRadiusSq = visibilityRadius * visibilityRadius
+    if length_sq(heroPos - float2(cell) + float2(0.5)) > visibilityRadiusSq
+        return
     draw_floor(cell.x, cell.y)
     draw_wall(cell.x, cell.y, walls, heroPos, true)
 
@@ -612,19 +805,6 @@ def draw_avatar(pos : float2; dir : float2; curWalkSpeed : float2; canWalk : boo
     let animRow = dir.y >= 0.0 ? 0.0 : 1.0
     let frame = isWalkingS ? (sin(t * 2.0 * PI * ANIM_HERO_WALK_SPEED) > 0.0 ? 1.0 : 2.0) : 0.0
     hero_img |> draw_image_region(posIso.x + HERO_IMG_OFFSET.x, posIso.y + HERO_IMG_OFFSET.y, float4(float(HERO_IMG_SIZE.x) * frame, float(HERO_IMG_SIZE.y) * animRow, float(HERO_IMG_SIZE.x), float(HERO_IMG_SIZE.y)))
-
-[decs(stage=draw, REQUIRE=interactable, after=draw_avatar)]
-def draw_interactable(pos : float2; active : bool; isUnderMouse : bool; id: int)
-    if !active
-        return
-    var posIso = camera((pos + float2(1.0, 1.0)))
-    posIso.x = floor(posIso.x)
-    posIso.y = floor(posIso.y)
-
-    if isUnderMouse
-        posIso.y += sin(get_time_after_start() * 10.0) * 1.0
-    interact_img |> draw_image_region(posIso.x - CELL_IMG_SIZE.x * 0.5, posIso.y - CELL_IMG_SIZE.y, float4(0., 0., CELL_IMG_SIZE.x, CELL_IMG_SIZE.y))
-    text_out(posIso.x, posIso.y, "{id}", 0x000000)
 
 
 [decs(stage=drawMenu, REQUIRE=button)]
@@ -648,9 +828,26 @@ def draw_menu_text(active : bool; state : bool; text : int; textPos : float2; co
 [decs(stage=draw, after=draw_avatar)]
 def draw_level_front(cell : int2; walls : int)
     var heroPos : float2
-    query() <| $ [REQUIRE(input)](pos : float2)
+    var visibilityRadiusSq = 10000.0
+    query() <| $ [REQUIRE(input)](pos : float2; visibilityRadius : float = 100.0)
         heroPos = pos
+        visibilityRadiusSq = visibilityRadius * visibilityRadius
+    if length_sq(heroPos - float2(cell) + float2(0.5)) > visibilityRadiusSq
+        return
     draw_wall(cell.x, cell.y, walls, heroPos, false)
+
+[decs(stage=draw, REQUIRE=interactable, after=draw_avatar)]
+def draw_interactable(pos : float2; active : bool; isUnderMouse : bool; id: int)
+    if !active
+        return
+    var posIso = camera((pos + float2(1.0, 1.0)))
+    posIso.x = floor(posIso.x)
+    posIso.y = floor(posIso.y)
+
+    if isUnderMouse
+        posIso.y += sin(get_time_after_start() * 10.0) * 1.0
+    interact_img |> draw_image_region(posIso.x - CELL_IMG_SIZE.x * 0.5, posIso.y - CELL_IMG_SIZE.y, float4(0., 0., CELL_IMG_SIZE.x, CELL_IMG_SIZE.y))
+    text_out(posIso.x, posIso.y, "{id}", 0x000000)
 
 [decs(stage=draw)]
 def draw_interactable_menu(menuSelected : bool)
@@ -664,15 +861,31 @@ def draw_interactable_menu(menuSelected : bool)
     fill_rect(menuPosX + MENU_PADDING, MENU_PADDING, menuWorkWidth, MENU_TEXT_SECTION_HEIGHT, 0x000000)
 
 [decs(stage=drawMenu, REQUIRE=input)]
-def draw_hero_interface(eid : EntityId; oxygenLevel : float; oxygenDepletionSpeed : float; pos : float2; wishPos : float2)
+def draw_hero_interface(eid : EntityId; isRoomPressurised : bool; hasOxygenTank : bool; suitOxygenLevel : float; suitOxygenMax : float; oxygenDepletionSpeed : float; pos : float2; wishPos : float2)
     let height = get_screen_height()
     let menuWorkWidth = MENU_WIDTH - 2*MENU_PADDING
     rect(0, 1, MENU_WIDTH-1, height-2, 0xAAAAAA)
     fill_rect(0, 1, MENU_WIDTH-1, height-2, 0x333333)
     fill_rect(0 + MENU_PADDING, MENU_PADDING, menuWorkWidth, MENU_TEXT_SECTION_HEIGHT, 0x000000)
-    let isOxygenCritical = oxygenLevel < 0.3 || oxygenDepletionSpeed > 0.01
+    let isOxygenCritical = !isRoomPressurised && !hasOxygenTank && (suitOxygenLevel < 0.3 || oxygenDepletionSpeed > 0.01)
+    let fontSize = get_current_font_size()
     let animX = isOxygenCritical ? int((abs(sin(get_time_after_start()*5.0))) * 5.0) : 0
-    text_out(int(animX) + MENU_PADDING*2, MENU_PADDING*2, "O2: {int(oxygenLevel*100.0)}% ", isOxygenCritical ? 0xFF0000 : 0x00B4E0)
+    text_out(int(animX) + MENU_PADDING*2, MENU_PADDING*2, isRoomPressurised ? "Pressurized" : "VACUUM", isRoomPressurised ? 0x00B4E0 : 0xFF0000)
+    text_out(int(animX) + MENU_PADDING*2, MENU_PADDING*2 + fontSize, "O2 suit: {int(suitOxygenLevel/suitOxygenMax*100.0)}% ", isOxygenCritical ? 0xFF0000 : 0x00B4E0)
+    text_out(MENU_PADDING*2, MENU_INVENTORY_SECTION_TITLE_OFFSET_Y, "Inventory:", 0xFFFFFF)
+    var tankIndex = 0
+    let tankOffset = fontSize
+    let tanksPosY = fontSize*2 + MENU_PADDING*2
+    query() <| $ (active : bool; oxygenTankMax : float; var oxygenTank : float&)
+        if active
+            text_out(MENU_PADDING*2, tanksPosY + tankOffset*tankIndex++, "O2 tank: {int(oxygenTank/oxygenTankMax*100.0)}% ", oxygenTank == 0.0 ? 0xFF0000 : 0x00B4E0)
+
+[decs(stage=drawMenu, REQUIRE=inventory)]
+def draw_hero_interface_inventory(active : bool; text : int; textPos : float2)
+    if !active
+        return
+    let textData = uint(text) < uint(length(text_buffer)) ? text_buffer[text] : ""
+    text_out(textPos.x, textPos.y, textData, 0xFFFFFF)
 
 def draw_title()
     let t = cvt(10.0 - get_time_after_start(), 0., 5., 0., 1.0)
